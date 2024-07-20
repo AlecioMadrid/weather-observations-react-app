@@ -1,23 +1,206 @@
-import logo from './logo.svg';
 import './App.css';
+import {checkValue, 
+        populateRowsForTableFromObservations,
+        findClosestObservationStationURL} from './utils.js';
 
-function App() {
+import {callPointsAPIAndGetObservationStationsURL, 
+        callObservationStationsAPIAndGetStations,
+        getObservationsForClosestObservationStation
+ } from './nationalWeatherServiceClientFunctions.js';
+ 
+import {TextField, 
+        Button, 
+        Table, 
+        TableHead, 
+        TableRow, 
+        TableBody, 
+        TableCell,
+        Alert,
+        Dialog,
+        DialogTitle,
+        DialogContent,
+        DialogContentText,
+        DialogActions
+      } from '@mui/material';
+import { useState } from 'react';
+
+
+const App = () => {
+
+  const [lat,setLat] = useState('');
+  const [lon, setLon] = useState('');
+  const [displayAlert, setDisplayAlert] = useState(false);
+  const [displayHelp, setDisplayHelp] = useState(false);
+  const [tableRows, setTableRows] = useState([{},{},{},{},{},{}])
+
+  const latOnChange = (event) => {
+    const value = event.target.value;
+    if (checkValue(value)) {
+      setLat(event.target.value)
+    }
+  }
+
+  const lonOnChange = (event) => {
+    const value = event.target.value;
+    if (checkValue(value)) {
+      setLon(event.target.value)
+    }
+  }
+
+  const handleSubmitClick = async (lat, lon) => {
+    setTableRows([{},{},{},{},{},{},{}])
+    setDisplayAlert(false)
+    try {
+      const observationStationsURL = await callPointsAPIAndGetObservationStationsURL(lat,lon);
+      const observationStations = await callObservationStationsAPIAndGetStations(observationStationsURL);
+      const closestStationURL = findClosestObservationStationURL(observationStations, lat, lon);
+      const observations = await getObservationsForClosestObservationStation(closestStationURL);
+      const rows = populateRowsForTableFromObservations(observations)
+      if (rows.length !== 0) {
+        setTableRows(rows)
+      } else {
+        setDisplayAlert(true)
+      }
+    } catch {
+      // In a real production environment we would set up a logging service
+      setTableRows([{},{},{},{},{},{},{}])
+      setDisplayAlert(true)
+    }
+  }
+
+  const handleHelpClick = () => {
+    setDisplayHelp(true)
+  }
+
+  const handleClose = () => {
+    setDisplayHelp(false)
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+    <div 
+      className="App"
+    >
+      <Dialog
+        open={displayHelp}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Using the National Weather Service Observation Query Tool"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This tool provides 7 day high and low temperatures for a provided latitude (positive degrees North) and longitude (positive degrees West) within the United States using observation data
+            from the National Weather Service's closest station (if available). If there are no stations within a close enough geographical proximity to the 
+            provided point it is possible that there may not be data available. 
+            <br/><br/>https://www.latlong.net/convert-address-to-lat-long.html is one of many 
+            tools available for converting to a latitude and longitude from other location types (e.g. city, state, zipcode, address).
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {displayAlert ?
+      <Alert 
+        severity="error" 
+        variant='filled' 
+        onClose={() => {setDisplayAlert(false)}}
+        sx={{
+          zIndex: 10000,
+          position: 'fixed',
+          top:5
+        }}
+      >
+        Either there was an issue retrieving the data or no data available. Please double check your coordinates and try again.
+      </Alert>
+      :
+      <></>}
+
+      <div
+        className="Main-div"
+      >
+    <header className="App-header">
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          National Weather Service Observation Query Tool
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
+        <div>
+          <TextField 
+            autoFocus 
+            id="latitude" 
+            label={"Latitude (\u00B0N)"}
+            variant="outlined" 
+            value={lat}
+            onChange={latOnChange}
+            sx={{
+              marginBottom: 2,
+              marginRight: 1
+            }}
+          />
+          <TextField 
+            id="longitude" 
+            label={"Longitude (\u00B0W)"} 
+            variant="outlined"
+            value={lon}
+            onChange={lonOnChange} 
+          />
+        </div>
+        <div>
+          <Button 
+            variant="outlined"
+            onClick={() => handleHelpClick()}
+            sx={{
+              marginRight: 1
+            }}
+          >
+            Help
+          </Button>
+          { lat === '' || lon === '' ?
+            <Button 
+              disabled 
+              variant="contained"
+            >
+              Submit
+            </Button>
+          :
+            <Button 
+              variant="contained"
+              onClick={() => handleSubmitClick(lat, lon)}
+            >
+              Submit
+            </Button>
+          }
+
+          </div>
+
+          <Table sx={{ width: 400 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell align="right">High (&deg;C)</TableCell>
+                <TableCell align="right">Low (&deg;C)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tableRows.map((row) => (
+                <TableRow
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {row.startDate}
+                  </TableCell>
+                  <TableCell align="right">{row.highTemp}</TableCell>
+                  <TableCell align="right">{row.lowTemp}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          </div>
     </div>
   );
 }
