@@ -34,26 +34,26 @@ const App = () => {
   const [backdropOpen, setBackdropOpen] = useState(false);
   const [displayAlert, setDisplayAlert] = useState(false);
   const [displayHelp, setDisplayHelp] = useState(false);
-  const [tableRows, setTableRows] = useState([{},{},{},{},{},{}])
+  const [tableRows, setTableRows] = useState([{},{},{},{},{},{}]);
 
   const latOnChange = (event) => {
     const value = event.target.value;
     if (checkValue(value)) {
-      setLat(event.target.value)
+      setLat(event.target.value);
     }
   }
 
   const lonOnChange = (event) => {
     const value = event.target.value;
     if (checkValue(value)) {
-      setLon(event.target.value)
+      setLon(event.target.value);
     }
   }
 
   const handleSubmitClick = async (lat, lon) => {
-    setBackdropOpen(true)
-    setTableRows([{},{},{},{},{},{},{}])
-    setDisplayAlert(false)
+    setBackdropOpen(true);
+    setTableRows([{},{},{},{},{},{},{}]);
+    setDisplayAlert(false);
     try {
       const observationStationsURL = await callPointsAPIAndGetObservationStationsURL(lat,lon);
       const observationStations = await callObservationStationsAPIAndGetStations(observationStationsURL);
@@ -61,24 +61,24 @@ const App = () => {
       const observations = await getObservationsForClosestObservationStation(closestStationURL);
       const rows = populateRowsForTableFromObservations(observations)
       if (rows.length !== 0) {
-        setTableRows(rows)
+        setTableRows(rows);
       } else {
-        setDisplayAlert(true)
+        setDisplayAlert(true);
       }
     } catch {
       // In a real production environment we would set up a logging service
-      setTableRows([{},{},{},{},{},{},{}])
-      setDisplayAlert(true)
+      setTableRows([{},{},{},{},{},{},{}]);
+      setDisplayAlert(true);
     }
-    setBackdropOpen(false)
+    setBackdropOpen(false);
   }
 
   const handleHelpClick = () => {
-    setDisplayHelp(true)
+    setDisplayHelp(true);
   }
 
   const handleHelpClose = () => {
-    setDisplayHelp(false)
+    setDisplayHelp(false);
   }
 
   return (
@@ -135,15 +135,15 @@ const App = () => {
       <div
         className="Main-div"
       >
-    <header className="App-header">
-        <p>
-          National Weather Service Observation Query Tool
-        </p>
-      </header>
+        <header className="App-header">
+            <p>
+              National Weather Service Observation Query Tool
+            </p>
+        </header>
         <div>
           <TextField 
             autoFocus 
-            id="latitude" 
+            data-testid="latitude-text-input" 
             label={"Latitude (\u00B0N)"}
             variant="outlined" 
             value={lat}
@@ -154,7 +154,7 @@ const App = () => {
             }}
           />
           <TextField 
-            id="longitude" 
+            data-testid="longitude-text-input" 
             label={"Longitude (\u00B0W)"} 
             variant="outlined"
             value={lon}
@@ -166,6 +166,7 @@ const App = () => {
         </div>
         <div>
           <Button 
+            id="help-button"
             variant="outlined"
             onClick={() => handleHelpClick()}
             sx={{
@@ -176,6 +177,7 @@ const App = () => {
           </Button>
           { lat === '' || lon === '' ?
             <Button 
+              id="disabled-submit-button"
               disabled 
               variant="contained"
             >
@@ -192,7 +194,11 @@ const App = () => {
 
           </div>
 
-          <Table sx={{ width: 400 }} aria-label="simple table">
+          <Table 
+            sx={{ width: 400 }} 
+            aria-label="simple table"
+            data-testid="data-table"
+          >
             <TableHead>
               <TableRow>
                 <TableCell>Date</TableCell>

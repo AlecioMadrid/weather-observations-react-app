@@ -6,9 +6,9 @@
 export const checkValue = (value) => {
   const regex = new RegExp('^[\.0-9]*$');
   if (value.indexOf('.') === -1 || (value.indexOf('.') === value.lastIndexOf('.'))) {
-    return regex.test(value)
+    return regex.test(value);
   } else {
-    return false
+    return false;
   }
 }
 
@@ -37,7 +37,7 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
 }
 
 export const populateRowsForTableFromObservations = (observations) => {
-  const rows = []
+  const rows = [];
 
   // Skip any observations with a null temperature value
   let firstNonNullIndex = 0;
@@ -47,7 +47,7 @@ export const populateRowsForTableFromObservations = (observations) => {
 
   // If there are no non-null temperatures return an empty array
   if (firstNonNullIndex + 1 === rows.length) {
-    return []
+    return [];
   }
   
   // Get the date and temperature of the first observation with a non-null temperature
@@ -58,17 +58,17 @@ export const populateRowsForTableFromObservations = (observations) => {
   observations.slice(firstNonNullIndex + 1,).forEach(observation => {
     if (observation.properties.temperature.value) {
       if (observation.properties.timestamp.slice(0,10) !== startDate) {
-        rows.push({startDate, highTemp, lowTemp})
-        startDate = observation.properties.timestamp.slice(0,10)
-        highTemp = observation.properties.temperature.value
-        lowTemp = observation.properties.temperature.value
+        rows.push({startDate, highTemp, lowTemp});
+        startDate = observation.properties.timestamp.slice(0,10);
+        highTemp = observation.properties.temperature.value;
+        lowTemp = observation.properties.temperature.value;
       } else{ 
-        const obsTemp = observation.properties.temperature.value
+        const obsTemp = observation.properties.temperature.value;
         if (obsTemp) {
           if (obsTemp > highTemp) {
-            highTemp = obsTemp
+            highTemp = obsTemp;
           } else if (obsTemp < lowTemp) {
-            lowTemp = obsTemp
+            lowTemp = obsTemp;
           }      
         }  
       }
@@ -78,18 +78,18 @@ export const populateRowsForTableFromObservations = (observations) => {
 }
 
 export const findClosestObservationStationURL = (observationStations, lat, lon) => {
-  let closestStation = observationStations[0]
-  let closestDistance = calculateDistance(lat, lon * -1, observationStations[0].geometry.coordinates[1], observationStations[0].geometry.coordinates[0])
+  let closestStation = observationStations[0];
+  let closestDistance = calculateDistance(lat, lon * -1, observationStations[0].geometry.coordinates[1], observationStations[0].geometry.coordinates[0]);
 
   observationStations.slice(1,).forEach(station => {
-    const stationLat = station.geometry.coordinates[1]
-    const stationLon = station.geometry.coordinates[0]
-    const distanceToStation = calculateDistance(lat, lon * -1, stationLat, stationLon)
+    const stationLat = station.geometry.coordinates[1];
+    const stationLon = station.geometry.coordinates[0];
+    const distanceToStation = calculateDistance(lat, lon * -1, stationLat, stationLon);
     
     if (distanceToStation < closestDistance) {
-      closestStation = station
-      closestDistance = distanceToStation
+      closestStation = station;
+      closestDistance = distanceToStation;
     }
   })
-  return closestStation.id
+  return closestStation.id;
 }
