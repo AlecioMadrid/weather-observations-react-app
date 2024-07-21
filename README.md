@@ -2,6 +2,18 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Getting Started
+ 1. Make sure you have node and NPM installed on your local machine. See: https://github.com/nvm-sh/nvm for more information on initial installation and updating to new versions. 
+
+ * This application was developed using the following versions:
+Node: v22.5.1,
+NPM: v10.8.2
+
+2. Clone this repository onto your local machine using:
+`git clone https://github.com/AlecioMadrid/weather-observations-react-app.git`
+
+3. Navigate to the root directory `cd weather-observations-react-app` and run `npm install`
+
 ## Available Scripts
 
 In the project directory, you can run:
