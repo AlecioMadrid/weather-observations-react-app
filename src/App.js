@@ -20,7 +20,9 @@ import {TextField,
         DialogTitle,
         DialogContent,
         DialogContentText,
-        DialogActions
+        DialogActions,
+        Backdrop,
+        CircularProgress
       } from '@mui/material';
 import { useState } from 'react';
 
@@ -29,6 +31,7 @@ const App = () => {
 
   const [lat,setLat] = useState('');
   const [lon, setLon] = useState('');
+  const [backdropOpen, setBackdropOpen] = useState(false);
   const [displayAlert, setDisplayAlert] = useState(false);
   const [displayHelp, setDisplayHelp] = useState(false);
   const [tableRows, setTableRows] = useState([{},{},{},{},{},{}])
@@ -48,6 +51,7 @@ const App = () => {
   }
 
   const handleSubmitClick = async (lat, lon) => {
+    setBackdropOpen(true)
     setTableRows([{},{},{},{},{},{},{}])
     setDisplayAlert(false)
     try {
@@ -66,13 +70,14 @@ const App = () => {
       setTableRows([{},{},{},{},{},{},{}])
       setDisplayAlert(true)
     }
+    setBackdropOpen(false)
   }
 
   const handleHelpClick = () => {
     setDisplayHelp(true)
   }
 
-  const handleClose = () => {
+  const handleHelpClose = () => {
     setDisplayHelp(false)
   }
 
@@ -80,9 +85,15 @@ const App = () => {
     <div 
       className="App"
     >
+      <Backdrop
+        sx={{ color: '#fff', zIndex: 1000}}
+        open={backdropOpen}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <Dialog
         open={displayHelp}
-        onClose={handleClose}
+        onClose={handleHelpClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -99,7 +110,7 @@ const App = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} autoFocus>
+          <Button onClick={handleHelpClose} autoFocus>
             Close
           </Button>
         </DialogActions>
@@ -147,7 +158,10 @@ const App = () => {
             label={"Longitude (\u00B0W)"} 
             variant="outlined"
             value={lon}
-            onChange={lonOnChange} 
+            onChange={lonOnChange}
+            sx={{
+              marginRight: 2
+            }} 
           />
         </div>
         <div>
