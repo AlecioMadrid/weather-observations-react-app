@@ -1,0 +1,31 @@
+.App {
+  text-align: center;
+  background-color:#282c34;;
+  height: 100vh;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding-top: 100px;
+}
+
+.App-header {
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #015493;
+}
+
+.Main-div {
+  background-color: white;
+  min-height: 80vh;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+
